@@ -10,7 +10,7 @@ PATTERNS = {
 }
 
 
-def split_markdown_by_chapters(filename, pattern):
+def split_markdown_by_chapters(filename, pattern, numbered=False, dry_run=False):
     if not os.path.exists(filename):
         print(f"Error: The file '{filename}' was not found.")
         sys.exit(1)
@@ -18,12 +18,13 @@ def split_markdown_by_chapters(filename, pattern):
     base_name = os.path.splitext(os.path.basename(filename))[0]
     output_dir = f"Chapters_{base_name}"
 
-    if not os.path.exists(output_dir):
+    if not dry_run and not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
     with open(filename, 'r', encoding='utf-8') as f:
         lines = f.readlines()
 
+    chapters = []
     current_chapter_title = "Preface"
     current_chapter_content = []
 
@@ -33,7 +34,7 @@ def split_markdown_by_chapters(filename, pattern):
         match = chapter_pattern.match(line)
         if match:
             if current_chapter_content:
-                save_chapter(output_dir, current_chapter_title, current_chapter_content)
+                chapters.append((current_chapter_title, current_chapter_content))
                 current_chapter_content = []
 
             raw_title = line.strip().replace('#', '').strip()
@@ -43,16 +44,29 @@ def split_markdown_by_chapters(filename, pattern):
             current_chapter_content.append(line)
 
     if current_chapter_content:
-        save_chapter(output_dir, current_chapter_title, current_chapter_content)
-    
-    print(f"Success! Split '{filename}' into folder: {output_dir}/")
+        chapters.append((current_chapter_title, current_chapter_content))
 
-def save_chapter(directory, title, content):
+    for index, (title, content) in enumerate(chapters, start=1):
+        save_chapter(output_dir, title, content, index if numbered else None, dry_run)
+
+    if dry_run:
+        print(f"Dry run: would split '{filename}' into {len(chapters)} chapters in {output_dir}/")
+    else:
+        print(f"Success! Split '{filename}' into {len(chapters)} chapters in {output_dir}/")
+
+def save_chapter(directory, title, content, index=None, dry_run=False):
     safe_title = re.sub(r'[\\/*?:"<>|]', "", title).replace(" ", "_")
-    output_path = os.path.join(directory, f"{safe_title}.md")
-    
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.writelines(content)
+    if index is not None:
+        filename = f"{index:02d}_{safe_title}.md"
+    else:
+        filename = f"{safe_title}.md"
+    output_path = os.path.join(directory, filename)
+
+    if dry_run:
+        print(f"  {filename}")
+    else:
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.writelines(content)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -69,7 +83,17 @@ if __name__ == "__main__":
         '--pattern',
         help='Custom regex pattern (overrides --style)'
     )
+    parser.add_argument(
+        '--numbered',
+        action='store_true',
+        help='Prefix filenames with sequential numbers (01_, 02_, ...)'
+    )
+    parser.add_argument(
+        '--dry-run',
+        action='store_true',
+        help='Preview chapters without writing files'
+    )
 
     args = parser.parse_args()
     pattern = args.pattern if args.pattern else PATTERNS[args.style]
-    split_markdown_by_chapters(args.filename, pattern)
+    split_markdown_by_chapters(args.filename, pattern, args.numbered, args.dry_run)
