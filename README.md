@@ -27,6 +27,7 @@ python split_book.py <filename> [options]
 | `--pattern` | Custom regex pattern (overrides `--style`) |
 | `--numbered` | Prefix filenames with sequential numbers (`01_`, `02_`, ...) |
 | `--dry-run` | Preview chapters without writing files |
+| `-v, --verbose` | Show progress as chapters are saved |
 
 ### Preset Patterns
 

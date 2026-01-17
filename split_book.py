@@ -10,7 +10,7 @@ PATTERNS = {
 }
 
 
-def split_markdown_by_chapters(filename, pattern, numbered=False, dry_run=False):
+def split_markdown_by_chapters(filename, pattern, numbered=False, dry_run=False, verbose=False):
     if not os.path.exists(filename):
         print(f"Error: The file '{filename}' was not found.")
         sys.exit(1)
@@ -47,14 +47,14 @@ def split_markdown_by_chapters(filename, pattern, numbered=False, dry_run=False)
         chapters.append((current_chapter_title, current_chapter_content))
 
     for index, (title, content) in enumerate(chapters, start=1):
-        save_chapter(output_dir, title, content, index if numbered else None, dry_run)
+        save_chapter(output_dir, title, content, index if numbered else None, dry_run, verbose)
 
     if dry_run:
         print(f"Dry run: would split '{filename}' into {len(chapters)} chapters in {output_dir}/")
     else:
         print(f"Success! Split '{filename}' into {len(chapters)} chapters in {output_dir}/")
 
-def save_chapter(directory, title, content, index=None, dry_run=False):
+def save_chapter(directory, title, content, index=None, dry_run=False, verbose=False):
     safe_title = re.sub(r'[\\/*?:"<>|]', "", title).replace(" ", "_")
     if index is not None:
         filename = f"{index:02d}_{safe_title}.md"
@@ -67,6 +67,8 @@ def save_chapter(directory, title, content, index=None, dry_run=False):
     else:
         with open(output_path, 'w', encoding='utf-8') as f:
             f.writelines(content)
+        if verbose:
+            print(f"  Saved: {filename}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -93,7 +95,12 @@ if __name__ == "__main__":
         action='store_true',
         help='Preview chapters without writing files'
     )
+    parser.add_argument(
+        '-v', '--verbose',
+        action='store_true',
+        help='Show progress as chapters are saved'
+    )
 
     args = parser.parse_args()
     pattern = args.pattern if args.pattern else PATTERNS[args.style]
-    split_markdown_by_chapters(args.filename, pattern, args.numbered, args.dry_run)
+    split_markdown_by_chapters(args.filename, pattern, args.numbered, args.dry_run, args.verbose)
