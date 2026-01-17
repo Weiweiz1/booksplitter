@@ -60,3 +60,13 @@ python split_book.py mybook.md --numbered
 ## Output
 
 Creates a folder named `Chapters_<filename>/` containing individual markdown files for each chapter. Content before the first chapter match is saved as `Preface.md`.
+
+## Claude Code Skill
+
+This project includes a `/split-book` skill for [Claude Code](https://github.com/anthropics/claude-code).
+
+```bash
+/split-book mybook.md
+/split-book mybook.md --style english
+/split-book mybook.md --numbered
+```
