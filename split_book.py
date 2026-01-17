@@ -1,15 +1,23 @@
+import argparse
 import os
 import re
 import sys
 
-def split_markdown_by_chapters(filename):
+PATTERNS = {
+    'chinese': r'^(##\s+第.+章|#\s+后记|#\s+附录)',
+    'english': r'^##\s+Chapter\s+\d+',
+    'h2': r'^##\s+',
+}
+
+
+def split_markdown_by_chapters(filename, pattern):
     if not os.path.exists(filename):
         print(f"Error: The file '{filename}' was not found.")
-        return
+        sys.exit(1)
 
     base_name = os.path.splitext(os.path.basename(filename))[0]
     output_dir = f"Chapters_{base_name}"
-    
+
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -18,8 +26,8 @@ def split_markdown_by_chapters(filename):
 
     current_chapter_title = "Preface"
     current_chapter_content = []
-    
-    chapter_pattern = re.compile(r'^(##\s+第.+章|#\s+后记|#\s+附录)')
+
+    chapter_pattern = re.compile(pattern)
 
     for line in lines:
         match = chapter_pattern.match(line)
@@ -47,8 +55,21 @@ def save_chapter(directory, title, content):
         f.writelines(content)
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python split_book.py <your_file_name.md>")
-    else:
-        target_file = sys.argv[1]
-        split_markdown_by_chapters(target_file)
+    parser = argparse.ArgumentParser(
+        description='Split a markdown book into chapter files.'
+    )
+    parser.add_argument('filename', help='Path to the markdown file')
+    parser.add_argument(
+        '--style',
+        choices=PATTERNS.keys(),
+        default='chinese',
+        help='Preset pattern style (default: chinese)'
+    )
+    parser.add_argument(
+        '--pattern',
+        help='Custom regex pattern (overrides --style)'
+    )
+
+    args = parser.parse_args()
+    pattern = args.pattern if args.pattern else PATTERNS[args.style]
+    split_markdown_by_chapters(args.filename, pattern)
