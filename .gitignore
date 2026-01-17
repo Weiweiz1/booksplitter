@@ -1,9 +1,10 @@
 # Output folders
 Chapters_*/
 
-# Input markdown files (except README)
+# Input markdown files (except README and Claude skills)
 *.md
 !README.md
+!.claude/**/*.md
 
 # Python
 __pycache__/
