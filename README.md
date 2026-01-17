@@ -1,5 +1,7 @@
 # booksplitter
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A command-line tool to split markdown books into separate chapter files.
 
 ## Installation
