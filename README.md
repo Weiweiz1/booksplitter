@@ -7,7 +7,7 @@ A command-line tool to split markdown books into separate chapter files.
 ## Installation
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/booksplitter.git
+git clone https://github.com/Weiweiz1/booksplitter.git
 cd booksplitter
 ```
 
@@ -16,7 +16,7 @@ No dependencies required - uses Python standard library only.
 ## Usage
 
 ```bash
-python split_book.py <filename> [--style STYLE] [--pattern PATTERN]
+python split_book.py <filename> [options]
 ```
 
 ### Options
@@ -25,6 +25,8 @@ python split_book.py <filename> [--style STYLE] [--pattern PATTERN]
 |--------|-------------|
 | `--style` | Preset pattern: `chinese`, `english`, or `h2` (default: `chinese`) |
 | `--pattern` | Custom regex pattern (overrides `--style`) |
+| `--numbered` | Prefix filenames with sequential numbers (`01_`, `02_`, ...) |
+| `--dry-run` | Preview chapters without writing files |
 
 ### Preset Patterns
 
@@ -46,6 +48,12 @@ python split_book.py mybook.md --style h2
 
 # Use a custom pattern
 python split_book.py mybook.md --pattern "^##\s+Part\s+\d+"
+
+# Preview what chapters would be created
+python split_book.py mybook.md --dry-run
+
+# Output with numbered prefixes (01_Preface.md, 02_Chapter1.md, ...)
+python split_book.py mybook.md --numbered
 ```
 
 ## Output
