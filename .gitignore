@@ -1,8 +1,9 @@
 # Output folders
 Chapters_*/
 
-# Input markdown files
+# Input markdown files (except README)
 *.md
+!README.md
 
 # Python
 __pycache__/
